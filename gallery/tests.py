@@ -35,3 +35,22 @@ class GalleryViewTests(TestCase):
         self.assertContains(response, self.image1.title)
         self.assertContains(response, self.category2.name)
         self.assertContains(response, self.image2.title)
+
+
+class ImageDetailViewTests(TestCase):
+    def setUp(self):
+        self.image = Image.objects.create(
+            title='Mountain',
+            image=SimpleUploadedFile('mountain.jpg', b'\x00\x00\x00', content_type='image/jpeg'),
+            created_date=date.today(),
+            age_limit=18,
+        )
+
+    def test_image_detail_view_status_code(self):
+        response = self.client.get(reverse('image_detail', args=[self.image.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.image.title)
+
+    def test_image_detail_view_404(self):
+        response = self.client.get(reverse('image_detail', args=[999]))  # неіснуюче зображення
+        self.assertEqual(response.status_code, 404)
